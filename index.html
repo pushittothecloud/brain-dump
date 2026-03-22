@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Dump → Eisenhower Matrix → Pomodoro Plan</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 0;
+            margin-top: 20px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            height: 4px;
+        }
+
+        .progress-step {
+            flex: 1;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+
+        .progress-step.active {
+            background: white;
+        }
+
+        .progress-step.completed {
+            background: #4ade80;
+        }
+
+        .content {
+            padding: 30px;
+            min-height: calc(100vh - 200px);
+        }
+
+        .step {
+            display: none;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        .step-number {
+            font-size: 0.9em;
+            color: #667eea;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+
+        .step h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .step-description {
+            font-size: 1.05em;
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0 20px 0;
+            border: 2px solid #e5e7eb;
+            border-radius: 6px;
+            font-size: 1em;
+            font-family: inherit;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 1em;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto 30px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .video-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .iframe-wrapper {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        @media (min-width: 1024px) {
+            .iframe-wrapper {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .iframe-container {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #f9fafb;
+            height: 600px;
+        }
+
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .iframe-label {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .matrix {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .matrix-cell {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            overflow-y: auto;
+        }
+
+        .matrix-cell h3 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .matrix-cell.urgent-important {
+            border-color: #dc2626;
+        }
+
+        .matrix-cell.urgent-important h3 {
+            color: #dc2626;
+        }
+
+        .matrix-cell.important {
+            border-color: #ea580c;
+        }
+
+        .matrix-cell.important h3 {
+            color: #ea580c;
+        }
+
+        .matrix-cell.urgent {
+            border-color: #eab308;
+        }
+
+        .matrix-cell.urgent h3 {
+            color: #eab308;
+        }
+
+        .matrix-cell.normal {
+            border-color: #6b7280;
+        }
+
+        .matrix-cell.normal h3 {
+            color: #6b7280;
+        }
+
+        .task-item {
+            background: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-left: 4px solid;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .task-item.urgent-important {
+            border-left-color: #dc2626;
+            background: #fef2f2;
+        }
+
+        .task-item.important {
+            border-left-color: #ea580c;
+            background: #fff7ed;
+        }
+
+        .task-item.urgent {
+            border-left-color: #eab308;
+            background: #fefce8;
+        }
+
+        .task-item.normal {
+            border-left-color: #6b7280;
+            background: #f3f4f6;
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .task-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .pomodoro-badge {
+            background: #667eea;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            white-space: nowrap;
+        }
+
+        .task-description {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .break-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .break-category {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .break-category h3 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .break-item {
+            background: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            font-size: 0.95em;
+        }
+
+        .focus-summary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 8px;
+            margin: 30px 0;
+        }
+
+        .focus-summary h3 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+        }
+
+        .focus-item {
+            background: rgba(255,255,255,0.1);
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 4px;
+            border-left: 4px solid white;
+            font-size: 0.95em;
+        }
+
+        .emoji {
+            font-size: 1.3em;
+            margin-right: 8px;
+        }
+
+        .result-container {
+            margin-top: 30px;
+        }
+
+        .clarification-form {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #e5e7eb;
+            margin: 20px 0;
+        }
+
+        .clarification-form h4 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .clarification-item {
+            margin-bottom: 20px;
+        }
+
+        .clarification-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .clarification-item input,
+        .clarification-item textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            font-size: 0.95em;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 1.05em;
+        }
+
+        @media (max-width: 768px) {
+            .iframe-wrapper {
+                grid-template-columns: 1fr;
+            }
+
+            .matrix {
+                grid-template-columns: 1fr;
+            }
+
+            .break-menu {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.5em;
+            }
+
+            .content {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧠 Brain Dump → Eisenhower Matrix → Pomodoro Plan</h1>
+            <p>Turn your chaos into clarity</p>
+            <div class="progress-bar">
+                <div class="progress-step active" id="step1-progress"></div>
+                <div class="progress-step" id="step2-progress"></div>
+                <div class="progress-step" id="step3-progress"></div>
+                <div class="progress-step" id="step4-progress"></div>
+                <div class="progress-step" id="step5-progress"></div>
+                <div class="progress-step" id="step6-progress"></div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- STEP 1 -->
+            <div class="step active" id="step-1">
+                <div class="step-number">Step 1</div>
+                <h2>🎵 Read & Dump (with Lofi)</h2>
+                <p class="step-description">Read prompts on the left, write everything on the right. Lofi music plays in the background. Just dump—don't organize yet.</p>
+
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 2px solid #e5e7eb;">
+                    <h4 style="margin-bottom: 15px; color: #333;">🎧 Lofi Music (Web Audio)</h4>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Click below to play ambient lofi. Science-backed: 80 BPM, minimal melody, jazzy harmony.</p>
+                    <button id="lofiButton" onclick="lofiGenerator.togglePlayback()" style="background: #667eea; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(102, 126, 234, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                        🎵 Play Lofi Vibes
+                    </button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+                    <!-- LEFT: Prompts -->
+                    <div style="background: #fff7ed; padding: 20px; border-radius: 8px; border-left: 4px solid #ea580c; max-height: 700px; overflow-y: auto;">
+                        <h4 style="margin-bottom: 15px; color: #333;">📖 Brain Dump Prompts</h4>
+                        <p style="font-size: 0.9em; margin-bottom: 15px; color: #666;">Read each section and write down everything that comes to mind.</p>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <!-- BUCKET 1: External Responsibilities -->
+                            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #ea580c; margin-bottom: 10px;">
+                                <strong style="color: #ea580c;">⚙️ External Responsibilities</strong>
+                                <ul style="margin-left: 15px; margin-top: 8px; font-size: 0.85em; color: #666;">
+                                    <li>Work tasks & projects</li>
+                                    <li>Promised commitments</li>
+                                    <li>Admin & paperwork</li>
+                                    <li>Apps/subscriptions to manage</li>
+                                    <li>Email & digital cleanup</li>
+                                </ul>
+                            </div>
+
+                            <!-- BUCKET 2: Environment & Systems -->
+                            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #ea580c; margin-bottom: 10px;">
+                                <strong style="color: #ea580c;">🏠 Environment & Systems</strong>
+                                <ul style="margin-left: 15px; margin-top: 8px; font-size: 0.85em; color: #666;">
+                                    <li>Clutter & home repairs</li>
+                                    <li>Things to buy/organize</li>
+                                    <li>Recurring annoyances (things that keep happening)</li>
+                                    <li>Friction points in daily life</li>
+                                    <li>Pet/health administration</li>
+                                </ul>
+                            </div>
+
+                            <!-- BUCKET 3: People & Relationships -->
+                            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #ea580c; margin-bottom: 10px;">
+                                <strong style="color: #ea580c;">👥 People & Relationships</strong>
+                                <ul style="margin-left: 15px; margin-top: 8px; font-size: 0.85em; color: #666;">
+                                    <li>People waiting on you</li>
+                                    <li>Unread messages/follow-ups</li>
+                                    <li>Relationships needing attention</li>
+                                    <li>Promised favors or gifts</li>
+                                    <li>Upcoming events/social</li>
+                                </ul>
+                            </div>
+
+                            <!-- BUCKET 4: Internal State (What's Inside Your Head) -->
+                            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #ea580c; margin-bottom: 10px;">
+                                <strong style="color: #ea580c;">🧠 Internal State</strong>
+                                <ul style="margin-left: 15px; margin-top: 8px; font-size: 0.85em; color: #666;">
+                                    <li>Worries & anxieties</li>
+                                    <li>Uncertainty/unknowns (what you don't know)</li>
+                                    <li>Things you're avoiding or procrastinating</li>
+                                    <li>"Shoulds" & guilt (what you think you *should* do)</li>
+                                    <li>Things draining your energy</li>
+                                    <li>Mental tabs (unfinished thoughts/ideas)</li>
+                                </ul>
+                            </div>
+
+                            <!-- BUCKET 5: Direction & Values -->
+                            <div style="background: white; padding: 12px; border-radius: 6px; border-left: 3px solid #ea580c;">
+                                <strong style="color: #ea580c;">🧭 Direction & Values</strong>
+                                <ul style="margin-left: 15px; margin-top: 8px; font-size: 0.85em; color: #666;">
+                                    <li>Big decisions pending</li>
+                                    <li>Life priorities (what actually matters vs what you're doing)</li>
+                                    <li>Career/growth direction tension</li>
+                                    <li>Ideas & dreams for future</li>
+                                    <li>Skills/habits you want to build</li>
+                                    <li>Self-care & personal maintenance you've neglected</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT: Brain Dump Form -->
+                    <div>
+                        <div class="form-group" style="margin: 0;">
+                            <label>Your Brain Dump</label>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Write everything. Don't organize—just dump it all out. Be messy.</p>
+                            <textarea id="brainDump" placeholder="Everything on your mind goes here. Tasks, worries, ideas, deadlines—all of it..." style="height: 500px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Your WANT List (Optional/Fun)</label>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Books, hobbies, dreams, learning—separate with new lines.</p>
+                            <textarea id="wantList" placeholder="One per line..." style="height: 100px;"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Any Deadlines?</label>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Projects, reports, events with time constraints.</p>
+                            <textarea id="deadlines" placeholder="e.g., Report due Friday..." style="height: 80px;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-primary" onclick="goToStep(2)">Next: Classify & Specify →</button>
+                </div>
+            </div>
+
+            <!-- STEP 2 -->
+            <div class="step" id="step-2">
+                <div class="step-number">Step 2</div>
+                <h2>🏷️ Classify & Specify</h2>
+                <p class="step-description">For each item, decide what type it is and what the next step would be. Not everything is a task.</p>
+
+                <div style="background: #ecfdf5; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2em;">✅</span>
+                    <span style="color: #047857; font-size: 0.9em;"><strong>Auto-saving as you go.</strong> Changes are stored safely.</span>
+                </div>
+
+                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                    <p style="font-size: 0.95em; color: #333;"><strong>📌 Item Types:</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 8px; font-size: 0.9em; color: #666; line-height: 1.6;">
+                        <li><strong>Task:</strong> Actionable, has a next step</li>
+                        <li><strong>Worry:</strong> Mental clutter, park it (don't force to-do)</li>
+                        <li><strong>Idea:</strong> Future reference, inspiration, learning</li>
+                        <li><strong>Reminder:</strong> Time-triggered, needs a date</li>
+                        <li><strong>Note:</strong> Info to keep, not do</li>
+                    </ul>
+                </div>
+
+                <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #eab308;">
+                    <h4 style="margin-bottom: 12px; color: #333;">💡 Get Claude's Help (Optional)</h4>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 0.95em;">Want Claude to help you prioritize by importance and urgency? Click below—your brain dump will be copied + Claude opens with a pre-filled prompt.</p>
+                    <button onclick="copyDumpAndOpenClaude()" style="background: #764ba2; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 20px rgba(118, 75, 162, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                        📋 Copy Dump & Get Claude's Help Prioritizing
+                    </button>
+                    <p style="margin-top: 10px; font-size: 0.85em; color: #999;">Claude will open in a new tab. Paste your dump and it'll help classify each item by importance/urgency.</p>
+                </div>
+
+                <div id="classificationContainer" style="margin-bottom: 30px;"></div>
+
+                <div id="classificationSummary" style="display: none; background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 30px; border: 2px solid #e5e7eb;">
+                    <h4 style="margin-bottom: 15px;">✅ Your Items Summary</h4>
+                    <div id="summaryBreakdown"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="goToStep(1)">← Back</button>
+                    <button class="btn-primary" onclick="finishClassification()">Next: Build Matrix →</button>
+                </div>
+            </div>
+
+            <!-- STEP 3 -->
+            <div class="step" id="step-3">
+                <div class="step-number">Step 3</div>
+                <h2>📊 Eisenhower Matrix (Tasks Only)</h2>
+                <p class="step-description">Your classified tasks are now organized by urgency and importance. Worries, ideas, and notes were parked separately (see Step 6 for full breakdown).</p>
+
+                <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
+                    <p style="font-size: 0.95em; color: #333;"><strong>✅ What the science says:</strong></p>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 8px;">Not everything on your mind was a task. By separating worries, ideas, and notes first, you reduce list bloat and mental load. Only your actual action items are here.</p>
+                </div>
+
+                <div class="matrix" id="matrixContainer"></div>
+
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="goToStep(2)">← Back</button>
+                    <button class="btn-primary" onclick="goToStep(4)">Next: Time Estimates →</button>
+                </div>
+            </div>
+
+            <!-- STEP 4 -->
+            <div class="step" id="step-4">
+                <div class="step-number">Step 4</div>
+                <h2>⏱️ Pomodoro Timer & Plan</h2>
+                <p class="step-description">Each task has been assigned a realistic estimate. Use the timer below to track your work sessions.</p>
+
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 30px;">
+                    <h3 style="font-size: 2em; margin-bottom: 20px;">🍅 Pomodoro Timer</h3>
+                    <div style="display: grid; grid-template-columns: auto auto; gap: 20px; justify-content: center; margin-bottom: 20px;">
+                        <div>
+                            <label style="font-size: 0.9em; opacity: 0.9; display: block; margin-bottom: 8px;">Work</label>
+                            <select id="workMinutes" style="padding: 10px; border-radius: 6px; border: none; font-size: 1em; width: 80px;">
+                                <option value="25">25 min</option>
+                                <option value="30">30 min</option>
+                                <option value="45">45 min</option>
+                                <option value="60">60 min</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.9em; opacity: 0.9; display: block; margin-bottom: 8px;">Break</label>
+                            <select id="breakMinutes" style="padding: 10px; border-radius: 6px; border: none; font-size: 1em; width: 80px;">
+                                <option value="5">5 min</option>
+                                <option value="10">10 min</option>
+                                <option value="15">15 min</option>
+                                <option value="30">30 min</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="font-size: 3.5em; font-weight: bold; font-family: 'Courier New', monospace; margin: 30px 0; letter-spacing: 5px;" id="timerDisplay">25:00</div>
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                        <button onclick="startTimer()" style="background: white; color: #667eea; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">Start</button>
+                        <button onclick="pauseTimer()" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">Pause</button>
+                        <button onclick="resetTimer()" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">Reset</button>
+                    </div>
+                    <p id="timerStatus" style="font-size: 0.95em; opacity: 0.9;">Ready to focus 🚀</p>
+                </div>
+
+                <div id="pomodoroList" class="result-container"></div>
+
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="goToStep(3)">← Back</button>
+                    <button class="btn-primary" onclick="goToStep(5)">Next: Break Menu →</button>
+                </div>
+            </div>
+
+            <!-- STEP 5 -->
+            <div class="step" id="step-5">
+                <div class="step-number">Step 5</div>
+                <h2>☕ Break Menu</h2>
+                <p class="step-description">Light refreshers and longer rewards based on your WANT list.</p>
+
+                <div id="breakMenu" class="break-menu"></div>
+
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
+                    <button class="btn-primary" onclick="goToStep(6)">Next: Your Plan →</button>
+                </div>
+            </div>
+
+            <!-- STEP 6 -->
+            <div class="step" id="step-6">
+                <div class="step-number">Step 6</div>
+                <h2>🎯 Your Complete Plan</h2>
+                <p class="step-description">Here's everything together. Print this, bookmark it, or modify as you go.</p>
+
+                <div style="background: #ecfdf5; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.2em;">✅</span>
+                    <span style="color: #047857; font-size: 0.9em;"><strong>All your items are captured and organized.</strong> You can reference this anytime.</span>
+                </div>
+
+                <div id="finalOutput"></div>
+
+                <div class="btn-group">
+                    <button class="btn-secondary" onclick="goToStep(5)">← Back</button>
+                    <button class="btn-secondary" onclick="downloadPlan()" style="flex: 1;">📥 Download as Text</button>
+                    <button class="btn-secondary" onclick="goToStep(1)" style="flex: 1;">↻ Start Over</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data storage
+        const state = {
+            brainDump: '',
+            wantList: [],
+            deadlines: '',
+            tasks: [],
+            categorized: {},
+            classifiedItems: []
+        };
+
+        // Navigation
+        function goToStep(step) {
+            // Hide all steps
+            document.querySelectorAll('.step').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.progress-step').forEach(el => el.classList.remove('active', 'completed'));
+
+            // Show current step
+            document.getElementById(`step-${step}`).classList.add('active');
+
+            // Update progress bar
+            for (let i = 1; i < step; i++) {
+                document.getElementById(`step${i}-progress`).classList.add('completed');
+            }
+            document.getElementById(`step${step}-progress`).classList.add('active');
+
+            // Save data before moving
+            saveStepData(step - 1);
+
+            // Trigger action on step enter
+            if (step === 2) activateStep2();
+            if (step === 3) activateStep3();
+            if (step === 4) activateStep4();
+            if (step === 5) activateStep5();
+            if (step === 6) activateStep6();
+
+            window.scrollTo(0, 0);
+        }
+
+        function saveStepData(step) {
+            if (step === 1) {
+                state.brainDump = document.getElementById('brainDump').value;
+                state.wantList = document.getElementById('wantList').value.split('\n').filter(l => l.trim());
+                state.deadlines = document.getElementById('deadlines').value;
+            }
+        }
+
+        // Task categorization logic
+        function categorizeTask(task) {
+            const lower = task.toLowerCase();
+            const urgentKeywords = ['urgent', 'asap', 'today', 'deadline', 'due', 'soon', 'emergency', 'critical'];
+            const importantKeywords = ['important', 'goal', 'plan', 'strategy', 'project', 'significant', 'impact'];
+
+            const isUrgent = urgentKeywords.some(k => lower.includes(k));
+            const isImportant = importantKeywords.some(k => lower.includes(k));
+
+            if (isUrgent && isImportant) return 'urgent-important';
+            if (isImportant && !isUrgent) return 'important';
+            if (isUrgent && !isImportant) return 'urgent';
+            return 'normal';
+        }
+
+        function estimatePomodoros(task) {
+            const lower = task.toLowerCase();
+            
+            // Quick tasks
+            if (['email', 'call', 'respond', 'quick', 'small', 'minor'].some(k => lower.includes(k))) {
+                return { minutes: 15, pomodoros: '0.5 (just do it)' };
+            }
+            
+            // Medium tasks
+            if (['fix', 'review', 'update', 'check', 'organize'].some(k => lower.includes(k))) {
+                return { minutes: 25, pomodoros: '1' };
+            }
+            
+            // Larger tasks
+            if (['build', 'create', 'write', 'design', 'develop', 'plan'].some(k => lower.includes(k))) {
+                return { minutes: 60, pomodoros: '2-3' };
+            }
+            
+            // Default
+            return { minutes: 25, pomodoros: '1' };
+        }
+
+        function parseAndCategorizeTasks() {
+            let taskText = document.getElementById('taskInput').value;
+            if (!taskText) taskText = state.brainDump;
+
+            const tasks = taskText
+                .split(/[\n•\-*]+/)
+                .map(t => t.trim())
+                .filter(t => t.length > 0 && t.length < 200);
+
+            state.tasks = tasks.map(task => ({
+                text: task,
+                category: categorizeTask(task),
+                estimate: estimatePomodoros(task)
+            }));
+
+            // Build categorized object
+            state.categorized = {
+                'urgent-important': state.tasks.filter(t => t.category === 'urgent-important'),
+                'important': state.tasks.filter(t => t.category === 'important'),
+                'urgent': state.tasks.filter(t => t.category === 'urgent'),
+                'normal': state.tasks.filter(t => t.category === 'normal')
+            };
+
+            renderMatrix();
+        }
+
+        function renderMatrix() {
+            const container = document.getElementById('matrixContainer');
+            container.innerHTML = '';
+
+            const categories = [
+                { key: 'urgent-important', emoji: '🔴', label: 'Urgent + Important', description: 'Do ASAP' },
+                { key: 'important', emoji: '🟡', label: 'Important + Not Urgent', description: 'Schedule time' },
+                { key: 'urgent', emoji: '🟠', label: 'Urgent + Not Important', description: 'Delegate if possible' },
+                { key: 'normal', emoji: '⚪', label: 'Not Urgent + Not Important', description: 'Schedule or drop' }
+            ];
+
+            categories.forEach(cat => {
+                const tasks = state.categorized[cat.key] || [];
+                const cell = document.createElement('div');
+                cell.className = `matrix-cell ${cat.key}`;
+                cell.innerHTML = `
+                    <h3>${cat.emoji} ${cat.label}</h3>
+                    <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">${cat.description}</p>
+                    ${tasks.length === 0 ? '<p class="empty-state">No tasks here</p>' : ''}
+                    ${tasks.map((task, i) => `
+                        <div class="task-item ${task.category}">
+                            <div class="task-header">
+                                <div class="task-title">${task.text}</div>
+                                <span class="pomodoro-badge">⏱️ ${task.estimate.pomodoros}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                `;
+                container.appendChild(cell);
+            });
+        }
+
+        function activateStep3() {
+            // Pre-populate with brain dump if empty
+            if (!document.getElementById('taskInput').value && state.brainDump) {
+                document.getElementById('taskInput').value = state.brainDump;
+                parseAndCategorizeTasks();
+            } else if (state.tasks.length === 0 && document.getElementById('taskInput').value) {
+                parseAndCategorizeTasks();
+            } else if (state.tasks.length > 0) {
+                renderMatrix();
+            }
+        }
+
+        function activateStep3() {
+            // Tasks are already parsed in Step 2, just render the matrix
+            renderMatrix();
+        }
+
+        // Step 2 Classification
+        function activateStep2() {
+            saveStepData(1); // Save brain dump before parsing
+            
+            if (state.brainDump.trim().length === 0) {
+                document.getElementById('classificationContainer').innerHTML = '<p class="empty-state"><p>Your brain dump is empty. Go back to Step 1 and write something.</p></p>';
+                return;
+            }
+
+            // Parse items from brain dump
+            const rawItems = state.brainDump
+                .split(/[\n•\-*]+/)
+                .map(t => t.trim())
+                .filter(t => t.length > 0 && t.length < 200);
+
+            // Initialize classified items if needed
+            if (!state.classifiedItems) {
+                state.classifiedItems = rawItems.map(text => ({
+                    text,
+                    type: 'task',  // default
+                    nextStep: '',
+                    needsReminder: false,
+                    reminderDate: ''
+                }));
+            }
+
+            renderClassificationUI();
+        }
+
+        function renderClassificationUI() {
+            const container = document.getElementById('classificationContainer');
+            let html = '<div style="display: grid; gap: 15px;">';
+
+            state.classifiedItems.forEach((item, idx) => {
+                html += `
+                    <div style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 20px;">
+                        <div style="margin-bottom: 15px;">
+                            <strong style="color: #333; font-size: 1.05em;">Item #${idx + 1}</strong>
+                            <p style="color: #666; margin-top: 8px; font-style: italic;">"${item.text}"</p>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">What type is this?</label>
+                            <select id="type-${idx}" onchange="updateItemType(${idx}, this.value)" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1em;">
+                                <option value="task" ${item.type === 'task' ? 'selected' : ''}>📋 Task (actionable, has next step)</option>
+                                <option value="worry" ${item.type === 'worry' ? 'selected' : ''}>😟 Worry (mental clutter, park it)</option>
+                                <option value="idea" ${item.type === 'idea' ? 'selected' : ''}>💡 Idea (future reference, learning)</option>
+                                <option value="reminder" ${item.type === 'reminder' ? 'selected' : ''}>🔔 Reminder (time-triggered)</option>
+                                <option value="note" ${item.type === 'note' ? 'selected' : ''}>📝 Note (info to keep)</option>
+                            </select>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">What's the next step? (Be specific)</label>
+                            <input type="text" id="step-${idx}" value="${item.nextStep}" onchange="updateItemNextStep(${idx}, this.value)" placeholder="e.g., 'Email John', 'Buy milk', 'Decide if important'..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9em;">
+                        </div>
+
+                        ${item.type === 'reminder' ? `
+                            <div style="margin-bottom: 15px;">
+                                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">When do you need this reminder?</label>
+                                <input type="date" id="date-${idx}" value="${item.reminderDate}" onchange="updateItemDate(${idx}, this.value)" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9em;">
+                            </div>
+                        ` : ''}
+
+                        ${item.type === 'task' ? `
+                            <div>
+                                <label style="display: flex; align-items: center; gap: 10px; font-weight: 600; color: #333; cursor: pointer;">
+                                    <input type="checkbox" id="reminder-${idx}" ${item.needsReminder ? 'checked' : ''} onchange="updateItemReminder(${idx}, this.checked)">
+                                    Do you need a reminder for this?
+                                </label>
+                                ${item.needsReminder ? `
+                                    <input type="date" id="reminddate-${idx}" value="${item.reminderDate}" onchange="updateItemReminderDate(${idx}, this.value)" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.9em; margin-top: 10px;">
+                                ` : ''}
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+
+            // Show summary if all items are filled
+            updateSummary();
+        }
+
+        function updateItemType(idx, type) {
+            state.classifiedItems[idx].type = type;
+            renderClassificationUI();
+        }
+
+        function updateItemNextStep(idx, step) {
+            state.classifiedItems[idx].nextStep = step;
+        }
+
+        function updateItemReminder(idx, checked) {
+            state.classifiedItems[idx].needsReminder = checked;
+            renderClassificationUI();
+        }
+
+        function updateItemReminderDate(idx, date) {
+            state.classifiedItems[idx].reminderDate = date;
+        }
+
+        function updateItemDate(idx, date) {
+            state.classifiedItems[idx].reminderDate = date;
+        }
+
+        function updateSummary() {
+            const summary = document.getElementById('classificationSummary');
+            const breakdown = document.getElementById('summaryBreakdown');
+
+            const counts = {
+                task: state.classifiedItems.filter(i => i.type === 'task').length,
+                worry: state.classifiedItems.filter(i => i.type === 'worry').length,
+                idea: state.classifiedItems.filter(i => i.type === 'idea').length,
+                reminder: state.classifiedItems.filter(i => i.type === 'reminder').length,
+                note: state.classifiedItems.filter(i => i.type === 'note').length
+            };
+
+            let html = `
+                <p style="margin-bottom: 15px; color: #666;">You have classified ${state.classifiedItems.length} items:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px;">
+                    ${counts.task > 0 ? `<div style="background: #fff7ed; padding: 12px; border-radius: 6px; border-left: 4px solid #ea580c;"><strong>📋 Tasks:</strong> ${counts.task}</div>` : ''}
+                    ${counts.worry > 0 ? `<div style="background: #fef2f2; padding: 12px; border-radius: 6px; border-left: 4px solid #dc2626;"><strong>😟 Worries:</strong> ${counts.worry}</div>` : ''}
+                    ${counts.idea > 0 ? `<div style="background: #fef3c7; padding: 12px; border-radius: 6px; border-left: 4px solid #eab308;"><strong>💡 Ideas:</strong> ${counts.idea}</div>` : ''}
+                    ${counts.reminder > 0 ? `<div style="background: #e0e7ff; padding: 12px; border-radius: 6px; border-left: 4px solid #667eea;"><strong>🔔 Reminders:</strong> ${counts.reminder}</div>` : ''}
+                    ${counts.note > 0 ? `<div style="background: #f3f4f6; padding: 12px; border-radius: 6px; border-left: 4px solid #6b7280;"><strong>📝 Notes:</strong> ${counts.note}</div>` : ''}
+                </div>
+                <p style="font-size: 0.9em; color: #999; font-style: italic;">💡 Only your TASKS will go to the Eisenhower Matrix. Worries, ideas, and notes are parked separately.</p>
+            `;
+
+            breakdown.innerHTML = html;
+            summary.style.display = 'block';
+        }
+
+        function finishClassification() {
+            // Filter items into tasks and non-tasks
+            const taskItems = state.classifiedItems.filter(i => i.type === 'task');
+            
+            if (taskItems.length === 0) {
+                alert('You need at least one task to continue. Mark at least one item as a task.');
+                return;
+            }
+
+            // Convert tasks to the format needed for categorization
+            state.tasks = taskItems.map(item => ({
+                text: item.text,
+                nextStep: item.nextStep || item.text,
+                needsReminder: item.needsReminder,
+                reminderDate: item.reminderDate,
+                category: categorizeTask(item.nextStep || item.text),
+                estimate: estimatePomodoros(item.nextStep || item.text)
+            }));
+
+            // Build categorized object
+            state.categorized = {
+                'urgent-important': state.tasks.filter(t => t.category === 'urgent-important'),
+                'important': state.tasks.filter(t => t.category === 'important'),
+                'urgent': state.tasks.filter(t => t.category === 'urgent'),
+                'normal': state.tasks.filter(t => t.category === 'normal')
+            };
+
+            goToStep(3);
+        }
+
+        function activateStep4() {
+            const listContainer = document.getElementById('pomodoroList');
+            listContainer.innerHTML = '';
+
+            const allTasks = state.tasks
+                .sort((a, b) => {
+                    const order = { 'urgent-important': 0, 'important': 1, 'urgent': 2, 'normal': 3 };
+                    return order[a.category] - order[b.category];
+                });
+
+            if (allTasks.length === 0) {
+                listContainer.innerHTML = '<div class="empty-state"><p>No tasks yet. Go back to Step 3 and add tasks.</p></div>';
+                return;
+            }
+
+            let totalPomodoros = 0;
+            allTasks.forEach(task => {
+                const minutes = task.estimate.minutes;
+                totalPomodoros += minutes === 15 ? 0.5 : minutes / 25;
+            });
+
+            let html = `<h3 style="margin-bottom: 20px;">📊 Timeline Overview</h3>
+                <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <p><strong>Total tasks:</strong> ${allTasks.length}</p>
+                    <p><strong>Estimated time:</strong> ${Math.round(totalPomodoros * 25)} minutes (${totalPomodoros.toFixed(1)} Pomodoros)</p>
+                    <p><strong>Conservative estimate (with breaks):</strong> ${Math.round(totalPomodoros * 30)} minutes</p>
+                </div>
+                <h3 style="margin-bottom: 20px;">Task Breakdown</h3>`;
+
+            allTasks.forEach(task => {
+                html += `
+                    <div class="task-item ${task.category}">
+                        <div class="task-header">
+                            <div>
+                                <div class="task-title">${task.text}</div>
+                                <div class="task-description">${task.estimate.minutes} min (${task.estimate.pomodoros} Pomodoro${parseInt(task.estimate.pomodoros) !== 1 ? 's' : ''})</div>
+                            </div>
+                            <span class="pomodoro-badge">${task.estimate.pomodoros}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            listContainer.innerHTML = html;
+        }
+
+        function activateStep5() {
+            const breakContainer = document.getElementById('breakMenu');
+            breakContainer.innerHTML = '';
+
+            const wantItems = state.wantList;
+
+            const quickBreaks = [
+                '⏸️ 5 min breathing exercise or stretch',
+                '☕ Grab water or tea',
+                '🚶 Quick walk to another room',
+                '🎵 Listen to one song',
+                '📱 Check messages (just 5 min)',
+                '👀 Doodle or sketch',
+                '😸 Pet your cat/dog',
+                '🪟 Look outside for 2 minutes'
+            ];
+
+            const longBreaks = [
+                '🎮 30 min video game',
+                '📚 Read a chapter',
+                '🍕 Proper lunch or snack',
+                '🧘 20 min yoga or meditation',
+                '🏃 Go for a run/walk',
+                '🎨 Work on a creative project',
+                '🎸 Play an instrument',
+                '🎬 Watch an episode'
+            ];
+
+            let html = `
+                <div class="break-category">
+                    <h3>⚡ 5-Minute Break Options</h3>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Quick resets between tasks</p>
+                    ${quickBreaks.map(b => `<div class="break-item">${b}</div>`).join('')}
+                    ${wantItems.filter((_, i) => i < 3).map(w => `<div class="break-item" style="background: #fef3c7; border-left-color: #eab308;">✨ ${w}</div>`).join('')}
+                </div>
+                <div class="break-category">
+                    <h3>🎉 15-30 Min Reward Options</h3>
+                    <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">After 3-4 Pomodoros</p>
+                    ${longBreaks.map(b => `<div class="break-item">${b}</div>`).join('')}
+                    ${wantItems.filter((_, i) => i >= 3).map(w => `<div class="break-item" style="background: #fef3c7; border-left-color: #eab308;">✨ ${w}</div>`).join('')}
+                </div>
+            `;
+
+            breakContainer.innerHTML = html;
+        }
+
+        function activateStep6() {
+            const outputContainer = document.getElementById('finalOutput');
+            outputContainer.innerHTML = '';
+
+            const urgent = state.categorized['urgent-important'] || [];
+            const top3 = urgent.slice(0, 3);
+
+            let html = `
+                <h3 style="margin: 25px 0 15px 0;">🎯 Today's Focus (Top 3 Tasks)</h3>
+                <div class="focus-summary">
+                    ${urgent.slice(0, 3).length === 0 ? '<p>No urgent tasks. Pick 3 important ones below.</p>' : ''}
+                    ${urgent.slice(0, 3).map((t, i) => `<div class="focus-item"><strong>#${i+1}</strong> ${t.text} <br><span style="font-size: 0.85em; opacity: 0.9;">Next step: ${t.nextStep || 'Get started'}</span></div>`).join('')}
+                </div>
+
+                <h3 style="margin: 25px 0 15px 0;">📋 Your Tasks by Priority</h3>
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+            `;
+
+            const categories = [
+                { key: 'urgent-important', emoji: '🔴', label: 'Urgent + Important' },
+                { key: 'important', emoji: '🟡', label: 'Important + Not Urgent' },
+                { key: 'urgent', emoji: '🟠', label: 'Urgent + Not Important' },
+                { key: 'normal', emoji: '⚪', label: 'Not Urgent + Not Important' }
+            ];
+
+            categories.forEach(cat => {
+                const tasks = state.categorized[cat.key] || [];
+                if (tasks.length === 0) return;
+
+                html += `<h4 style="margin: 20px 0 10px 0;">${cat.emoji} ${cat.label}</h4>`;
+                tasks.forEach(t => {
+                    html += `<div style="padding: 10px 0; border-bottom: 1px solid #e5e7eb;">
+                        <div><strong>• ${t.text}</strong></div>
+                        <div style="font-size: 0.85em; color: #666; margin-top: 5px;">Next step: ${t.nextStep || 'Get started'}</div>
+                        <div style="font-size: 0.85em; color: #999; margin-top: 3px;">⏱️ ${t.estimate.pomodoros} Pomodoro(s) | ${t.needsReminder ? '🔔 Reminder set' : ''}</div>
+                    </div>`;
+                });
+            });
+
+            html += `
+                </div>
+
+                <h3 style="margin: 25px 0 15px 0;">🧠 Everything Else (Not Tasks)</h3>
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+            `;
+
+            // Show worries, ideas, notes, reminders
+            const worries = state.classifiedItems.filter(i => i.type === 'worry');
+            const ideas = state.classifiedItems.filter(i => i.type === 'idea');
+            const notes = state.classifiedItems.filter(i => i.type === 'note');
+            const reminders = state.classifiedItems.filter(i => i.type === 'reminder');
+
+            if (worries.length > 0) {
+                html += `<h4 style="margin: 15px 0 10px 0;">😟 Worries (Parked, Don't Force to Action)</h4>`;
+                worries.forEach(w => {
+                    html += `<div style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #666;">• ${w.text}</div>`;
+                });
+            }
+
+            if (ideas.length > 0) {
+                html += `<h4 style="margin: 15px 0 10px 0;">💡 Ideas (Future Reference)</h4>`;
+                ideas.forEach(i => {
+                    html += `<div style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #666;">• ${i.text}</div>`;
+                });
+            }
+
+            if (reminders.length > 0) {
+                html += `<h4 style="margin: 15px 0 10px 0;">🔔 Time-Triggered Reminders</h4>`;
+                reminders.forEach(r => {
+                    html += `<div style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #666;">• ${r.text} <span style="color: #999;">${r.reminderDate ? `(${r.reminderDate})` : ''}</span></div>`;
+                });
+            }
+
+            if (notes.length > 0) {
+                html += `<h4 style="margin: 15px 0 10px 0;">📝 Notes (Info to Keep)</h4>`;
+                notes.forEach(n => {
+                    html += `<div style="padding: 8px 0; border-bottom: 1px solid #e5e7eb; color: #666;">• ${n.text}</div>`;
+                });
+            }
+
+            html += `
+                </div>
+
+                <h3 style="margin: 25px 0 15px 0;">☕ Your Break Favorites</h3>
+                <div style="background: #f9fafb; padding: 20px; border-radius: 8px;">
+                    <p><strong>Quick breaks:</strong> Walk, water, stretch, listen to a song</p>
+                    <p><strong>Longer breaks:</strong> Read, game, watch an episode</p>
+                    ${state.wantList.length > 0 ? `<p><strong>Your fun stuff:</strong> ${state.wantList.join(', ')}</p>` : ''}
+                </div>
+
+                <h3 style="margin: 25px 0 15px 0;">💡 Science-Backed Tips</h3>
+                <ul style="padding-left: 20px; line-height: 1.8;">
+                    <li><strong>Start with #1:</strong> One 🔴 task today. Just one.</li>
+                    <li><strong>Use Pomodoros:</strong> 25 min focus, 5 min break. After 4, take 15-30 min off.</li>
+                    <li><strong>Worries ≠ tasks:</strong> You parked worries separately. That mental relief is the point.</li>
+                    <li><strong>Specific next steps:</strong> You defined what "next" means for each task. Start there.</li>
+                    <li><strong>Reminders only when needed:</strong> You chose which tasks need prompts. Use them.</li>
+                    <li><strong>Done is better than perfect.</strong></li>
+                </ul>
+            `;
+
+            outputContainer.innerHTML = html;
+        }
+
+        function downloadPlan() {
+            let text = '=== BRAIN DUMP PLAN ===\n\n';
+            text += '🎯 TODAY\'S TOP 3 FOCUS ITEMS:\n';
+            const urgent = state.categorized['urgent-important'] || [];
+            urgent.slice(0, 3).forEach((t, i) => {
+                text += `${i+1}. ${t.text}\n`;
+            });
+
+            text += '\n\n📊 FULL TASK LIST:\n\n';
+
+            const categories = [
+                { key: 'urgent-important', label: '🔴 Urgent + Important' },
+                { key: 'important', label: '🟡 Important + Not Urgent' },
+                { key: 'urgent', label: '🟠 Urgent + Not Important' },
+                { key: 'normal', label: '⚪ Not Urgent + Not Important' }
+            ];
+
+            categories.forEach(cat => {
+                const tasks = state.categorized[cat.key] || [];
+                if (tasks.length === 0) return;
+
+                text += `${cat.label}\n`;
+                tasks.forEach(t => {
+                    text += `- ${t.text} (${t.estimate.pomodoros} Pomodoro, ${t.estimate.minutes} min)\n`;
+                });
+                text += '\n';
+            });
+
+            text += '\n☕ BREAKS:\n';
+            text += 'Quick: Walk, stretch, water, music\n';
+            text += 'Long: Game, read, episode, yoga\n';
+
+            const blob = new Blob([text], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'brain-dump-plan.txt';
+            a.click();
+        }
+
+        // Pomodoro Timer
+        let timerInterval = null;
+        let totalSeconds = 0;
+        let remainingSeconds = 0;
+        let isWorkSession = true;
+        let isPaused = false;
+
+        function toggleTranscript(id) {
+            const element = document.getElementById(id);
+            if (element.style.display === 'none') {
+                element.style.display = 'block';
+            } else {
+                element.style.display = 'none';
+            }
+        }
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(remainingSeconds / 60);
+            const secs = remainingSeconds % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        function startTimer() {
+            if (timerInterval) return;
+
+            const workMins = parseInt(document.getElementById('workMinutes').value);
+            const breakMins = parseInt(document.getElementById('breakMinutes').value);
+
+            if (!isPaused) {
+                isWorkSession = true;
+                totalSeconds = workMins * 60;
+                remainingSeconds = totalSeconds;
+                document.getElementById('timerStatus').textContent = '💪 Focus time! No distractions...';
+            } else {
+                document.getElementById('timerStatus').textContent = isPaused ? (isWorkSession ? '💪 Focus time! No distractions...' : '☕ Break time — recharge!') : 'Ready';
+            }
+
+            isPaused = false;
+
+            timerInterval = setInterval(() => {
+                remainingSeconds--;
+                updateTimerDisplay();
+
+                if (remainingSeconds <= 0) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+
+                    // Play sound & switch session
+                    if (isWorkSession) {
+                        document.getElementById('timerStatus').textContent = '✅ Work session done! Take a break.';
+                        alert('🍅 Pomodoro complete! Time for a break.');
+                        isWorkSession = false;
+                        totalSeconds = breakMins * 60;
+                        remainingSeconds = totalSeconds;
+                        updateTimerDisplay();
+                        document.getElementById('timerStatus').textContent = '☕ Break time — recharge!';
+                    } else {
+                        document.getElementById('timerStatus').textContent = '🔔 Break over! Ready for another round?';
+                        alert('⏰ Break time is over! Ready to get back to work?');
+                        isWorkSession = true;
+                    }
+                }
+            }, 1000);
+        }
+
+        function pauseTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+                isPaused = true;
+                document.getElementById('timerStatus').textContent = '⏸️ Timer paused';
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            isPaused = false;
+            isWorkSession = true;
+            const workMins = parseInt(document.getElementById('workMinutes').value);
+            remainingSeconds = workMins * 60;
+            updateTimerDisplay();
+            document.getElementById('timerStatus').textContent = '🚀 Ready to focus';
+        }
+
+        // Copy brain dump and open ChatGPT
+        function copyAndOpenChatGPT() {
+            const brainDump = document.getElementById('brainDump').value;
+            
+            if (!brainDump.trim()) {
+                alert('Please write something in your brain dump first!');
+                return;
+            }
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(brainDump).then(() => {
+                alert('✅ Brain dump copied to clipboard!\n\nChatGPT will open in a new tab. Paste your text and ask for help refining it.');
+                // Open ChatGPT
+                window.open('https://chatgpt.com', '_blank');
+            }).catch(() => {
+                // Fallback if clipboard doesn't work
+                alert('Open ChatGPT and paste your text manually.\n\n' + brainDump);
+                window.open('https://chatgpt.com', '_blank');
+            });
+        }
+
+        // Copy dump and open Claude with prioritization prompt
+        function copyDumpAndOpenClaude() {
+            const brainDump = document.getElementById('brainDump').value;
+            
+            if (!brainDump.trim()) {
+                alert('Please write something in your brain dump first!');
+                return;
+            }
+
+            const prompt = `Here's my brain dump. Can you help me prioritize and classify each item?
+
+For each item, identify:
+1. **Type**: Is this a TASK (actionable), WORRY (mental clutter), IDEA (future reference), REMINDER (time-triggered), or NOTE (info only)?
+2. **Next Step**: What's the very first thing I'd do if I were to act on this?
+3. **Urgency**: How urgent is it? (NOW, This Week, This Month, Someday, or N/A if not a task)
+4. **Importance**: How important is it? (Critical, High, Medium, Low, or N/A if not a task)
+
+Format your response as a table with columns: Item | Type | Next Step | Urgency | Importance
+
+My brain dump:
+
+${brainDump}`;
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(prompt).then(() => {
+                alert('✅ Your brain dump + instructions copied!\n\nClaude will open in a new tab.\n\n1. Paste your dump+prompt\n2. Claude will help prioritize and classify each item\n3. Copy Claude\'s response back here to fill in your classifications');
+                window.open('https://web.claude.ai', '_blank');
+            }).catch(() => {
+                alert('Please manually paste this into Claude:\n\n' + prompt);
+                window.open('https://web.claude.ai', '_blank');
+            });
+        }
+
+        // ============ LOFI MUSIC GENERATOR (Web Audio API) ============
+        
+        class LofiMusicGenerator {
+            constructor() {
+                this.audioContext = null;
+                this.isPlaying = false;
+                this.masterGain = null;
+                this.oscillators = [];
+                this.gains = [];
+            }
+
+            init() {
+                if (!this.audioContext) {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    this.masterGain = this.audioContext.createGain();
+                    this.masterGain.gain.value = 0.08; // Slightly reduced to prevent clipping/distortion
+                    this.masterGain.connect(this.audioContext.destination);
+                }
+            }
+
+            playKick(time, duration = 0.5) {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(160, time); // Start slightly higher for warmth
+                osc.frequency.exponentialRampToValueAtTime(0.01, time + duration);
+                
+                // Light lowpass for warmth
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(500, time);
+                
+                // Softer gain envelope - start with tiny ramp to avoid click
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.4, time + 0.02); // Quick attack (20ms)
+                gain.gain.exponentialRampToValueAtTime(0.01, time + duration); // Long, smooth decay
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start(time);
+                osc.stop(time + duration);
+            }
+
+            playSnare(time, duration = 0.1) {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(200, time);
+                
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(1000, time);
+                
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.3, time + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.01, time + duration);
+                
+                osc.connect(gain);
+                gain.connect(filter);
+                filter.connect(this.masterGain);
+                
+                osc.start(time);
+                osc.stop(time + duration);
+            }
+
+            playPerc(time, duration = 0.08) {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                
+                // Perc/Rim: high sine click, very quick and bright
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, time);
+                
+                // Highpass for rim click character
+                filter.type = 'highpass';
+                filter.frequency.setValueAtTime(1000, time);
+                
+                // Very quick: tight attack, fast decay
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.18, time + 0.005); // Tight 5ms attack
+                gain.gain.exponentialRampToValueAtTime(0.001, time + duration); // Quick decay
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start(time);
+                osc.stop(time + duration);
+            }
+
+            playPinkNoise(time, duration = 5) {
+                try {
+                    const sampleRate = this.audioContext.sampleRate;
+                    const bufferSize = Math.floor(sampleRate * duration);
+                    const noiseBuffer = this.audioContext.createBuffer(1, bufferSize, sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    
+                    // Generate pink noise (bass-boosted white noise)
+                    let lastOut = 0;
+                    for (let i = 0; i < bufferSize; i++) {
+                        const white = Math.random() * 2 - 1; // White noise
+                        output[i] = (lastOut + (0.02 * white)) / 1.02; // Simple filter for pink
+                        lastOut = output[i];
+                    }
+                    
+                    const source = this.audioContext.createBufferSource();
+                    const gain = this.audioContext.createGain();
+                    const filter = this.audioContext.createBiquadFilter();
+                    
+                    source.buffer = noiseBuffer;
+                    
+                    // Lowpass to reduce harshness
+                    filter.type = 'lowpass';
+                    filter.frequency.value = 2000;
+                    
+                    gain.gain.value = 0.02; // Very subtle background texture
+                    
+                    source.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.masterGain);
+                    
+                    source.start(time);
+                    source.stop(time + duration);
+                    console.log('Pink noise layer playing');
+                } catch (e) {
+                    console.error('Error in playPinkNoise:', e);
+                }
+            }
+
+            // Rich harmonic pad with extended chords - NOW RHYTHMIC CLICKS
+            playHarmonicPad(time, duration = 5, chordNotes = [220, 246.94, 293.66, 330, 369.99]) {
+                try {
+                    chordNotes.forEach((freq, idx) => {
+                        const osc = this.audioContext.createOscillator();
+                        const gain = this.audioContext.createGain();
+                        const filter = this.audioContext.createBiquadFilter();
+                        
+                        // Use sine only
+                        osc.type = 'sine';
+                        osc.frequency.value = freq;
+                        
+                        // Gentle lowpass filter
+                        filter.type = 'lowpass';
+                        filter.frequency.setValueAtTime(5000, time);
+                        filter.frequency.linearRampToValueAtTime(4500, time + duration);
+                        filter.Q.value = 0.8;
+                        
+                        // Stagger start times: 0s, 0.5s, 1.0s, 1.5s, 2.0s (spreads clicks across rhythm)
+                        const staggerStart = time + (idx * 0.5);
+                        console.log(`    Harmonic note ${idx}: ${freq.toFixed(2)}Hz starts at +${(idx * 0.5).toFixed(1)}s`);
+                        
+                        // Quick percussive attack, then sustain (embrace the click as rhythm)
+                        const attackDuration = 0.15;
+                        gain.gain.setValueAtTime(0, staggerStart);
+                        gain.gain.linearRampToValueAtTime(0.08 - idx * 0.01, staggerStart + attackDuration);
+                        gain.gain.linearRampToValueAtTime(0.02, staggerStart + duration);
+                        
+                        osc.connect(filter);
+                        filter.connect(gain);
+                        gain.connect(this.masterGain);
+                        
+                        osc.start(staggerStart);
+                        osc.stop(staggerStart + duration);
+                    });
+                } catch (e) {
+                    console.error('Error in playHarmonicPad:', e);
+                }
+            }
+
+            // Warm bass synth that walks through chord tones
+            playWarmBass(time, duration = 4, baseFreq = 110) {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                const lfo = this.audioContext.createOscillator();
+                const lfoGain = this.audioContext.createGain();
+                
+                // Warm bass tone (sawtooth-like with filter)
+                osc.type = 'square';
+                osc.frequency.value = baseFreq;
+                
+                // Filter movement
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(800, time);
+                filter.frequency.linearRampToValueAtTime(600, time + duration);
+                filter.Q.value = 3;
+                
+                // LFO for subtle modulation (warm feel)
+                lfo.type = 'sine';
+                lfo.frequency.value = 0.5; // Slow wobble
+                lfoGain.gain.value = 30; // Subtle frequency modulation
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                
+                gain.gain.setValueAtTime(0.08, time);
+                gain.gain.exponentialRampToValueAtTime(0.05, time + duration);
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start(time);
+                lfo.start(time);
+                osc.stop(time + duration);
+                lfo.stop(time + duration);
+            }
+
+            // Vinyl crackle / tape noise (reduces alertness, lowers stress)
+            playVinylCrackle(time, duration = 4) {
+                try {
+                    const sampleRate = this.audioContext.sampleRate;
+                    const bufferSize = Math.floor(sampleRate * duration);
+                    const noiseBuffer = this.audioContext.createBuffer(1, bufferSize, sampleRate);
+                    const output = noiseBuffer.getChannelData(0);
+                    
+                    for (let i = 0; i < bufferSize; i++) {
+                        // Random crackles (occasional pops, not white noise)
+                        if (Math.random() > 0.98) {
+                            output[i] = (Math.random() - 0.5) * 0.3;
+                        } else if (i > 0) {
+                            output[i] = output[i - 1] * 0.95; // Decay between crackles
+                        } else {
+                            output[i] = 0;
+                        }
+                    }
+                    
+                    const source = this.audioContext.createBufferSource();
+                    const gain = this.audioContext.createGain();
+                    const filter = this.audioContext.createBiquadFilter();
+                    
+                    source.buffer = noiseBuffer;
+                    
+                    // Filter crackle to high-freq only (like old vinyl)
+                    filter.type = 'highpass';
+                    filter.frequency.value = 4000;
+                    
+                    gain.gain.value = 0.04; // Very subtle
+                    
+                    source.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(this.masterGain);
+                    
+                    source.start(time);
+                    source.stop(time + duration);
+                    console.log('Vinyl crackle playing');
+                } catch (e) {
+                    console.error('Error in playVinylCrackle:', e);
+                }
+            }
+
+            // Smooth melodic synth layer (warm, musical, minimal)
+            playSmoothMelody(time, duration = 2, freq = 440) {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                
+                // Warm sine
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                
+                // Gentler filter for warmth (even smoother than before)
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2800, time); // Slightly lower
+                filter.frequency.linearRampToValueAtTime(2500, time + duration);
+                filter.Q.value = 0.7; // Gentle, less resonant
+                
+                // Smoother gate envelope (not too punchy)
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.20, time + 0.15); // Slower fade-in (150ms)
+                gain.gain.linearRampToValueAtTime(0.10, time + duration); // Sustain lower then decay
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start(time);
+                osc.stop(time + duration);
+            }
+
+            playLofiLoop(loopDuration = 5) {
+                if (!this.isPlaying) {
+                    console.log('isPlaying is false, stopping');
+                    return;
+                }
+
+                console.log('=== LOFI LOOP START ===');
+
+                const now = this.audioContext.currentTime;
+
+                // Extended chord: A minor 7 (jazzy, introspective)
+                const chordNotes = [220, 246.94, 293.66, 330, 369.99];
+                
+                // Layer 2: Melody as rhythmic element (staggered starts for rhythm)
+                console.log('Layer 2: RHYTHMIC MELODY (equal duration notes)');
+                const simpleMelody = [
+                    { time: 0, note: chordNotes[0], dur: 0.625 },
+                    { time: 0.625, note: chordNotes[2], dur: 0.625 },
+                    { time: 1.25, note: chordNotes[0], dur: 0.625 },
+                    { time: 1.875, note: chordNotes[2], dur: 0.625 },
+                    { time: 2.5, note: chordNotes[1], dur: 0.625 },
+                    { time: 3.125, note: chordNotes[4], dur: 0.625 },
+                    { time: 3.75, note: chordNotes[1], dur: 0.625 },
+                    { time: 4.375, note: chordNotes[0], dur: 0.625 }
+                ];
+                
+                simpleMelody.forEach(m => {
+                    this.playSmoothMelody(now + m.time, m.dur, m.note);
+                });
+
+                // Layer 3: Drums - "kick perc, kick perc" pattern
+                console.log('Layer 3: DRUMS (kick perc, kick perc)');
+                const beatTimings = [
+                    { pos: 0, type: 'kick', humanize: 0.02 },           // KICK
+                    { pos: 0.625, type: 'clap', humanize: -0.015 },     // PERC
+                    { pos: 1.25, type: 'kick', humanize: 0.01 },        // KICK
+                    { pos: 1.875, type: 'clap', humanize: -0.01 }       // PERC
+                ];
+                
+                beatTimings.forEach(b => {
+                    const beatTime = now + b.pos + b.humanize; // Add slight timing variation
+                    if (b.type === 'kick') {
+                        console.log('  - KICK at', (b.pos + b.humanize).toFixed(3));
+                        this.playKick(beatTime, 0.3);
+                    }
+                    else if (b.type === 'clap') {
+                        console.log('  - PERC at', (b.pos + b.humanize).toFixed(3));
+                        this.playPerc(beatTime, 0.08);
+                    }
+                });
+
+                // Layer 4: Vinyl crackle disabled (user preference)
+                // this.playVinylCrackle(now, loopDuration);
+
+                console.log('=== LOFI LOOP END ===');
+
+                // Schedule next loop
+                if (this.isPlaying) {
+                    this.audioContext.resume();
+                    setTimeout(() => this.playLofiLoop(loopDuration), loopDuration * 1000);
+                }
+            }
+
+            start() {
+                try {
+                    this.init();
+                    console.log('AudioContext initialized:', this.audioContext.state);
+                    this.audioContext.resume().then(() => {
+                        console.log('AudioContext resumed');
+                    });
+                    this.isPlaying = true;
+                    console.log('Starting lofi loop');
+                    this.playLofiLoop(5);
+                    document.getElementById('lofiButton').textContent = '⏸️ Stop Lofi';
+                    document.getElementById('lofiButton').style.background = '#ea580c';
+                } catch (e) {
+                    console.error('Error starting lofi:', e);
+                    alert('Error: ' + e.message);
+                }
+            }
+
+            stop() {
+                this.isPlaying = false;
+                document.getElementById('lofiButton').textContent = '🎵 Play Lofi Vibes';
+                document.getElementById('lofiButton').style.background = '#667eea';
+            }
+
+            togglePlayback() {
+                if (this.isPlaying) {
+                    this.stop();
+                } else {
+                    this.start();
+                }
+            }
+        }
+
+        const lofiGenerator = new LofiMusicGenerator();
+
+        // Initialize
+        goToStep(1);
+    </script>
+</body>
+</html>
