@@ -694,8 +694,8 @@
             <!-- STEP 3 -->
             <div class="step" id="step-3">
                 <div class="step-number">Step 3</div>
-                <h2>📊 Eisenhower Matrix (Tasks Only)</h2>
-                <p class="step-description">Your classified tasks are now organized by urgency and importance. Worries, ideas, and notes were parked separately (see Step 6 for full breakdown).</p>
+                <h2>📊 Prioritize Tasks</h2>
+                <p class="step-description">All your tasks are shown at the top. Tap each task to assign it to a priority level.</p>
 
                 <div style="background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #667eea;">
                     <p style="font-size: 0.95em; color: #333;"><strong>✅ What the science says:</strong></p>
@@ -910,60 +910,140 @@
             const container = document.getElementById('matrixContainer');
             container.innerHTML = '';
 
+            const allTasks = state.tasks || [];
+            const categorized = state.categorized || {
+                'urgent-important': [],
+                'important': [],
+                'urgent': [],
+                'normal': []
+            };
+
+            // Render all tasks at the top as clickable list
+            let html = `
+                <div style="margin-bottom: 30px; background: #f9fafb; padding: 20px; border-radius: 8px; border: 2px solid #e5e7eb;">
+                    <h3 style="margin-top: 0; margin-bottom: 15px; color: #333;">📋 All Tasks - Tap to Change Priority</h3>
+                    <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            `;
+
+            allTasks.forEach((task, idx) => {
+                const categoryColors = {
+                    'urgent-important': '#dc2626',
+                    'important': '#f59e0b',
+                    'urgent': '#f97316',
+                    'normal': '#9ca3af'
+                };
+                const categoryLabels = {
+                    'urgent-important': '🔴',
+                    'important': '🟡',
+                    'urgent': '🟠',
+                    'normal': '⚪'
+                };
+                
+                html += `
+                    <div onclick="showCategoryMenu(${idx})" style="background: white; border: 2px solid ${categoryColors[task.category]}; padding: 12px 16px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-size: 0.9em; color: #333; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <span style="margin-right: 8px;">${categoryLabels[task.category]}</span>${task.text}
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            `;
+
+            // Quadrants
             const categories = [
                 { key: 'urgent-important', emoji: '🔴', label: 'Urgent + Important', description: 'Do ASAP' },
                 { key: 'important', emoji: '🟡', label: 'Important + Not Urgent', description: 'Schedule time' },
                 { key: 'urgent', emoji: '🟠', label: 'Urgent + Not Important', description: 'Delegate if possible' },
-                { key: 'normal', emoji: '⚪', label: 'Not Urgent + Not Important', description: 'Schedule or drop' }
+                { key: 'normal', emoji: '⚪', label: 'Not Urgent + Not Important', description: '(delete)' }
             ];
 
             categories.forEach(cat => {
-                const tasks = state.categorized[cat.key] || [];
-                const cell = document.createElement('div');
-                cell.className = `matrix-cell ${cat.key}`;
+                const tasks = categorized[cat.key] || [];
                 
                 let cellHTML = `
-                    <h3>${cat.emoji} ${cat.label}</h3>
-                    <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">${cat.description}</p>
-                    ${tasks.length === 0 ? '<p class="empty-state">No tasks here</p>' : ''}
+                    <div style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 20px; min-height: 200px;">
+                        <h3 style="margin-top: 0; margin-bottom: 5px;">${cat.emoji} ${cat.label}</h3>
+                        <p style="font-size: 0.85em; color: #666; margin-bottom: 15px;">${cat.description}</p>
                 `;
                 
-                // Build task items with expandable sub-tasks
-                tasks.forEach((task, idx) => {
-                    const taskId = `${cat.key}-${idx}`;
-                    const isExpanded = state.expandedTasks[taskId];
-                    const hasSubTasks = task.subTasks && task.subTasks.length > 0;
-                    
-                    cellHTML += `
-                        <div class="task-item ${task.category}" id="task-${taskId}">
-                            <div class="task-header" onclick="toggleTaskExpansion('${taskId}')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
-                                <div style="display: flex; align-items: center; flex: 1; gap: 8px;">
-                                    ${hasSubTasks ? `<span style="font-size: 1.1em;">${isExpanded ? '▼' : '▶'}</span>` : '<span style="width: 18px;"></span>'}
-                                    <div class="task-title" style="flex: 1;">${task.text}</div>
-                                </div>
-                                <span class="pomodoro-badge">⏱️ ${task.estimate.pomodoros}</span>
-                            </div>
-                            ${hasSubTasks && isExpanded ? `
-                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; margin-left: 20px;">
-                                    ${task.subTasks.map((sub, subIdx) => `
-                                        <div style="background: #fafafa; padding: 8px; border-radius: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em;">
-                                            <span>→ ${sub}</span>
-                                            <button onclick="removeSubTask('${taskId}', ${subIdx})" style="background: #dc2626; color: white; border: none; padding: 2px 6px; border-radius: 3px; font-size: 0.75em; cursor: pointer;">✕</button>
-                                        </div>
-                                    `).join('')}
-                                    <div style="background: #f9fafb; padding: 8px; border-radius: 4px; margin-top: 8px;">
-                                        <input type="text" id="subTaskInput-${taskId}" placeholder="Add a sub-task..." style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.9em; box-sizing: border-box;">
-                                        <button onclick="addSubTask('${taskId}')" style="width: 100%; margin-top: 6px; background: #667eea; color: white; border: none; padding: 6px; border-radius: 3px; font-size: 0.9em; cursor: pointer;">+ Add Sub-task</button>
+                if (tasks.length === 0) {
+                    cellHTML += '<p style="color: #999; font-size: 0.9em;">No tasks here</p>';
+                } else {
+                    tasks.forEach((task, idx) => {
+                        const taskId = `${cat.key}-${idx}`;
+                        const isExpanded = state.expandedTasks[taskId];
+                        const hasSubTasks = task.subTasks && task.subTasks.length > 0;
+                        
+                        cellHTML += `
+                            <div style="background: #f9fafb; padding: 12px; margin-bottom: 10px; border-radius: 6px; border-left: 3px solid #ea580c;">
+                                <div onclick="toggleTaskExpansion('${taskId}')" style="cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
+                                    <div style="display: flex; align-items: center; flex: 1; gap: 8px;">
+                                        ${hasSubTasks ? `<span style="font-size: 1.1em;">${isExpanded ? '▼' : '▶'}</span>` : '<span style="width: 18px;"></span>'}
+                                        <div style="flex: 1; font-weight: 600; color: #333;">${task.text}</div>
                                     </div>
+                                    <span style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em;">⏱️ ${task.estimate.pomodoros}</span>
                                 </div>
-                            ` : ''}
-                        </div>
-                    `;
-                });
+                                ${hasSubTasks && isExpanded ? `
+                                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #eee; margin-left: 20px;">
+                                        ${task.subTasks.map((sub, subIdx) => `
+                                            <div style="background: white; padding: 8px; border-radius: 4px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 0.9em;">
+                                                <span>→ ${sub}</span>
+                                                <button onclick="removeSubTask('${taskId}', ${subIdx})" style="background: #dc2626; color: white; border: none; padding: 2px 6px; border-radius: 3px; font-size: 0.75em; cursor: pointer;">✕</button>
+                                            </div>
+                                        `).join('')}
+                                        <div style="background: white; padding: 8px; border-radius: 4px; margin-top: 8px;">
+                                            <input type="text" id="subTaskInput-${taskId}" placeholder="Add a sub-task..." style="width: 100%; padding: 6px; border: 1px solid #ddd; border-radius: 3px; font-size: 0.9em; box-sizing: border-box;">
+                                            <button onclick="addSubTask('${taskId}')" style="width: 100%; margin-top: 6px; background: #667eea; color: white; border: none; padding: 6px; border-radius: 3px; font-size: 0.9em; cursor: pointer;">+ Add Sub-task</button>
+                                        </div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    });
+                }
                 
-                cell.innerHTML = cellHTML;
-                container.appendChild(cell);
+                cellHTML += '</div>';
+                html += cellHTML;
             });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function showCategoryMenu(taskIdx) {
+            const task = state.tasks[taskIdx];
+            const categories = [
+                { key: 'urgent-important', label: '🔴 Urgent + Important' },
+                { key: 'important', label: '🟡 Important + Not Urgent' },
+                { key: 'urgent', label: '🟠 Urgent + Not Important' },
+                { key: 'normal', label: '⚪ Not Urgent + Not Important (delete)' }
+            ];
+
+            let menuText = `Select priority for: "${task.text}"\n\n`;
+            menuText += categories.map((c, i) => `${i + 1}. ${c.label}`).join('\n');
+            menuText += '\n\nEnter number (1-4):';
+            
+            const selection = prompt(menuText, '1');
+            
+            if (selection && ['1', '2', '3', '4'].includes(selection)) {
+                const oldCategory = task.category;
+                const newCategory = categories[parseInt(selection) - 1].key;
+                task.category = newCategory;
+                
+                // Rebuild categorized
+                state.categorized = {
+                    'urgent-important': state.tasks.filter(t => t.category === 'urgent-important'),
+                    'important': state.tasks.filter(t => t.category === 'important'),
+                    'urgent': state.tasks.filter(t => t.category === 'urgent'),
+                    'normal': state.tasks.filter(t => t.category === 'normal')
+                };
+                
+                renderMatrix();
+            }
         }
 
         function toggleTaskExpansion(taskId) {
