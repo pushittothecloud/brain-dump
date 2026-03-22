@@ -1738,6 +1738,48 @@ ${brainDump}`;
                 osc.stop(time + duration);
             }
 
+            // Warm sustainable drone (meditative foundation)
+            playDrone(time, duration = 5, baseFreq = 110) {
+                const osc = this.audioContext.createOscillator();
+                const gain = this.audioContext.createGain();
+                const filter = this.audioContext.createBiquadFilter();
+                const lfo = this.audioContext.createOscillator();
+                const lfoGain = this.audioContext.createGain();
+                
+                // Pure sine wave drone
+                osc.type = 'sine';
+                osc.frequency.value = baseFreq;
+                
+                // Soft lowpass filter for warmth
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(400, time);
+                filter.frequency.linearRampToValueAtTime(350, time + duration);
+                filter.Q.value = 1;
+                
+                // Very slow LFO for subtle breathing effect (0.3 Hz = almost undetectable sway)
+                lfo.type = 'sine';
+                lfo.frequency.value = 0.3;
+                lfoGain.gain.value = 15; // Subtle pitch modulation (barely noticeable)
+                
+                lfo.connect(lfoGain);
+                lfoGain.connect(osc.frequency);
+                
+                // Very gentle, sustained volume
+                gain.gain.setValueAtTime(0.05, time);
+                gain.gain.linearRampToValueAtTime(0.04, time + duration); // Tiny fade out at end
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.masterGain);
+                
+                osc.start(time);
+                lfo.start(time);
+                osc.stop(time + duration);
+                lfo.stop(time + duration);
+                
+                console.log(`Drone playing at ${baseFreq}Hz for ${duration}s`);
+            }
+
             playLofiLoop(loopDuration = 5) {
                 if (!this.isPlaying) {
                     console.log('isPlaying is false, stopping');
@@ -1750,6 +1792,10 @@ ${brainDump}`;
 
                 // Extended chord: A minor 7 (jazzy, introspective)
                 const chordNotes = [220, 246.94, 293.66, 330, 369.99];
+                
+                // Layer 1: Sustaining drone (meditative foundation)
+                console.log('Layer 1: DRONE (sustained foundation)');
+                this.playDrone(now, loopDuration, 110); // A2 for 5 seconds
                 
                 // Layer 2: Melody as rhythmic element (staggered starts for rhythm)
                 console.log('Layer 2: RHYTHMIC MELODY (equal duration notes)');
@@ -1768,8 +1814,8 @@ ${brainDump}`;
                     this.playSmoothMelody(now + m.time, m.dur, m.note);
                 });
 
-                // Layer 3: Drums - "kick perc, kick perc" pattern
-                console.log('Layer 3: DRUMS (kick perc, kick perc)');
+                // Layer 4: Drums - "kick perc, kick perc" pattern
+                console.log('Layer 4: DRUMS (kick perc, kick perc)');
                 const beatTimings = [
                     { pos: 0, type: 'kick', humanize: 0.02 },           // KICK
                     { pos: 0.625, type: 'clap', humanize: -0.015 },     // PERC
@@ -1789,7 +1835,7 @@ ${brainDump}`;
                     }
                 });
 
-                // Layer 4: Vinyl crackle disabled (user preference)
+                // Layer 5: Vinyl crackle disabled (user preference)
                 // this.playVinylCrackle(now, loopDuration);
 
                 console.log('=== LOFI LOOP END ===');
