@@ -739,10 +739,11 @@
                         </div>
                     </div>
                     <div style="font-size: 3.5em; font-weight: bold; font-family: 'Courier New', monospace; margin: 30px 0; letter-spacing: 5px;" id="timerDisplay">25:00</div>
-                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;">
                         <button onclick="startTimer()" style="background: white; color: #667eea; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">Start</button>
                         <button onclick="pauseTimer()" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">Pause</button>
                         <button onclick="resetTimer()" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">Reset</button>
+                        <button onclick="testTimerSound()" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 30px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em;">🔊 Test Sound</button>
                     </div>
                     <p id="timerStatus" style="font-size: 0.95em; opacity: 0.9;">Ready to focus 🚀</p>
                 </div>
@@ -1333,20 +1334,45 @@
                 <h3 style="margin-bottom: 20px;">Task Breakdown</h3>`;
 
             allTasks.forEach(task => {
+                const categoryColors = {
+                    'urgent-important': '#dc2626',
+                    'important': '#fbbf24',
+                    'urgent': '#f97316',
+                    'normal': '#d1d5db'
+                };
+                const priorityEmojis = {
+                    'urgent-important': '🔴',
+                    'important': '🟡',
+                    'urgent': '🟠',
+                    'normal': '⚪'
+                };
+                
+                const googleCalendarUrl = createGoogleCalendarLink(task.text, task.estimate.minutes);
+                
                 html += `
-                    <div class="task-item ${task.category}">
-                        <div class="task-header">
-                            <div>
-                                <div class="task-title">${task.text}</div>
+                    <div class="task-item ${task.category}" style="border-left: 4px solid ${categoryColors[task.category]};">
+                        <div class="task-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                            <div style="flex: 1;">
+                                <div class="task-title" style="display: flex; align-items: center; gap: 8px;"><span>${priorityEmojis[task.category]}</span>${task.text}</div>
                                 <div class="task-description">${task.estimate.minutes} min (${task.estimate.pomodoros} Pomodoro${parseInt(task.estimate.pomodoros) !== 1 ? 's' : ''})</div>
                             </div>
-                            <span class="pomodoro-badge">${task.estimate.pomodoros}</span>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+                                <span class="pomodoro-badge" style="background: ${categoryColors[task.category]}; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600;">${task.estimate.pomodoros}</span>
+                                <a href="${googleCalendarUrl}" target="_blank" style="background: #4285f4; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.9em; font-weight: 600;">📅 Schedule</a>
+                            </div>
                         </div>
                     </div>
                 `;
             });
 
             listContainer.innerHTML = html;
+        }
+
+        function createGoogleCalendarLink(taskName, minutes) {
+            const title = encodeURIComponent(taskName);
+            const duration = minutes; // duration in minutes
+            const url = `https://calendar.google.com/calendar/u/0/r/eventedit?text=${title}&details=Task%20Duration:%20${duration}%20minutes&duration=${duration}`;
+            return url;
         }
 
         function activateStep5() {
@@ -1623,6 +1649,25 @@
             remainingSeconds = workMins * 60;
             updateTimerDisplay();
             document.getElementById('timerStatus').textContent = '🚀 Ready to focus';
+        }
+
+        function testTimerSound() {
+            // Create a simple beep sound using Web Audio API
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gain = audioContext.createGain();
+            
+            oscillator.connect(gain);
+            gain.connect(audioContext.destination);
+            
+            oscillator.frequency.value = 800; // 800 Hz
+            oscillator.type = 'sine';
+            
+            gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.5);
         }
 
         // Copy brain dump and open ChatGPT
