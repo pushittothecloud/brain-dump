@@ -500,7 +500,7 @@
             <div class="step active" id="step-1">
                 <div class="step-number">Step 1</div>
                 <h2>🎵 Read & Dump (with Lofi)</h2>
-                <p class="step-description">Read prompts on the left, write everything on the right. Lofi music plays in the background. Just dump—don't organize yet.</p>
+                <p class="step-description">Read prompts on the left, write everything on the right. Lofi music plays in the background. Just dump, don't organize yet.</p>
 
                 <div style="background: #f9fafb; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 2px solid #e5e7eb;">
                     <h4 style="margin-bottom: 15px; color: #333;">� Lofi Music</h4>
@@ -584,13 +584,13 @@
                     <div>
                         <div class="form-group" style="margin: 0;">
                             <label>Your Brain Dump</label>
-                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Write everything. Don't organize—just dump it all out. Be messy.</p>
-                            <textarea id="brainDump" placeholder="Everything on your mind goes here. Tasks, worries, ideas, deadlines—all of it..." style="height: 500px;"></textarea>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Write everything. Don't organize, just dump it all out. Be messy.</p>
+                            <textarea id="brainDump" placeholder="Everything on your mind goes here. Tasks, worries, ideas, deadlines, all of it..." style="height: 500px;"></textarea>
                         </div>
 
                         <div class="form-group">
                             <label>Your WANT List (Optional/Fun)</label>
-                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Books, hobbies, dreams, learning—separate with new lines.</p>
+                            <p style="font-size: 0.9em; color: #666; margin-bottom: 10px;">Books, hobbies, dreams, learning - separate with new lines.</p>
                             <textarea id="wantList" placeholder="One per line..." style="height: 100px;"></textarea>
                         </div>
 
@@ -631,7 +631,7 @@
 
                 <div style="background: #fef3c7; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #eab308;">
                     <h4 style="margin-bottom: 12px; color: #333;">💡 Get Claude's Help (Optional)</h4>
-                    <p style="margin-bottom: 15px; color: #666; font-size: 0.95em;">Want Claude to help you prioritize by importance and urgency? Click below—your brain dump will be copied + Claude opens with a pre-filled prompt.</p>
+                    <p style="margin-bottom: 15px; color: #666; font-size: 0.95em;">Want Claude to help you prioritize by importance and urgency? Click below - your brain dump will be copied + Claude opens with a pre-filled prompt.</p>
                     <button onclick="copyDumpAndOpenClaude()" style="background: #764ba2; color: white; padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1em; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 20px rgba(118, 75, 162, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
                         📋 Copy Dump & Get Claude's Help Prioritizing
                     </button>
@@ -1347,7 +1347,7 @@
                 remainingSeconds = totalSeconds;
                 document.getElementById('timerStatus').textContent = '💪 Focus time! No distractions...';
             } else {
-                document.getElementById('timerStatus').textContent = isPaused ? (isWorkSession ? '💪 Focus time! No distractions...' : '☕ Break time — recharge!') : 'Ready';
+                document.getElementById('timerStatus').textContent = isPaused ? (isWorkSession ? '💪 Focus time! No distractions...' : '☕ Break time - recharge!') : 'Ready';
             }
 
             isPaused = false;
@@ -1368,7 +1368,7 @@
                         totalSeconds = breakMins * 60;
                         remainingSeconds = totalSeconds;
                         updateTimerDisplay();
-                        document.getElementById('timerStatus').textContent = '☕ Break time — recharge!';
+                        document.getElementById('timerStatus').textContent = '☕ Break time - recharge!';
                     } else {
                         document.getElementById('timerStatus').textContent = '🔔 Break over! Ready for another round?';
                         alert('⏰ Break time is over! Ready to get back to work?');
