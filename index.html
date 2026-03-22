@@ -1445,10 +1445,10 @@ ${brainDump}`;
             // Copy to clipboard
             navigator.clipboard.writeText(prompt).then(() => {
                 alert('✅ Your brain dump + instructions copied!\n\nClaude will open in a new tab.\n\n1. Paste your dump+prompt\n2. Claude will help prioritize and classify each item\n3. Copy Claude\'s response back here to fill in your classifications');
-                window.open('https://web.claude.ai', '_blank');
+                window.open('https://claude.ai', '_blank');
             }).catch(() => {
                 alert('Please manually paste this into Claude:\n\n' + prompt);
-                window.open('https://web.claude.ai', '_blank');
+                window.open('https://claude.ai', '_blank');
             });
         }
 
