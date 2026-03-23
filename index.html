@@ -669,8 +669,11 @@
 
                 <div style="background: #ecfdf5; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; display: flex; align-items: center; gap: 10px;">
                     <span style="font-size: 1.2em;">💡</span>
-                    <span style="color: #047857; font-size: 0.9em;"><strong>Scan your dump on the left.</strong> Add your tasks on the right.</span>
+                    <span style="color: #047857; font-size: 0.9em;"><strong>Use the clarifying questions below to extract actionable tasks.</strong> Only add items that have a clear next step.</span>
                 </div>
+
+                <!-- CLARIFICATION QUESTIONS FROM ALL SECTIONS -->
+                <div id="clarifyingQuestionsContainer" style="margin-bottom: 30px;"></div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                     <!-- LEFT: Brain Dump (read-only) -->
@@ -1148,8 +1151,167 @@
                 state.tasks = [];
             }
             
+            // Render clarifying questions
+            renderClarifyingQuestions();
+            
             // Show task preview
             renderTasksPreview();
+        }
+
+        function renderClarifyingQuestions() {
+            const container = document.getElementById('clarifyingQuestionsContainer');
+            
+            const sections = [
+                {
+                    emoji: '⚙️',
+                    title: 'Work & Commitments',
+                    questions: [
+                        'Do you have any hard deadlines (report due today, deliverable by Friday)?',
+                        'Are there any critical issues affecting you or others?',
+                        'Did you promise something important with consequences?',
+                        'Is there an upcoming interview or imminent opportunity?'
+                    ]
+                },
+                {
+                    emoji: '🏠',
+                    title: 'Home & Systems',
+                    questions: [
+                        'Is anything broken and blocking you (no heat, leak, no internet, broken door)?',
+                        'Are there any safety issues?',
+                        'Is there a last-minute move or time-sensitive repair deadline?'
+                    ]
+                },
+                {
+                    emoji: '👥',
+                    title: 'People, Events & Waiting',
+                    questions: [
+                        'Do you have any scheduled commitments soon (meeting, dinner, call)?',
+                        'Is anyone waiting for a response from you today?',
+                        'Did you commit to a specific deadline with someone?',
+                        'Is there an escalating conflict needing immediate resolution?'
+                    ]
+                },
+                {
+                    emoji: '💰',
+                    title: 'Money & Life Admin',
+                    questions: [
+                        'Is any bill due TODAY with late penalties?',
+                        'Is there a financial crisis (fraud, failed payment, eviction)?',
+                        'Are taxes near filing deadline?',
+                        'Are there unused subscriptions to cancel?'
+                    ]
+                },
+                {
+                    emoji: '🧠',
+                    title: 'Worries, Avoidance & Mental Load',
+                    questions: [
+                        'Is there a decision that\'s blocking you from moving forward?',
+                        'Are you avoiding something important with a deadline or impact?',
+                        'What actually feels urgent vs. what you\'re just anxious about?'
+                    ]
+                },
+                {
+                    emoji: '🔁',
+                    title: 'Open Loops & Time Pressure',
+                    questions: [
+                        'Is anything blocking other tasks from progressing?',
+                        'Are there interrupted projects with upcoming deadlines?',
+                        'What feels unresolved and on your mind?'
+                    ]
+                },
+                {
+                    emoji: '🧭',
+                    title: 'Direction, Growth & Decisions',
+                    questions: [
+                        'Do you need to decide something by a specific deadline?',
+                        'Is there an opportunity with an expiration date?',
+                        'Are there applications or commitments due by a certain date?'
+                    ]
+                },
+                {
+                    emoji: '🏥',
+                    title: 'Health, Energy & Self',
+                    questions: [
+                        'Do you have a medical appointment scheduled?',
+                        'Are there worsening symptoms or time-sensitive health issues?',
+                        'Do you need to refill any medications?'
+                    ]
+                },
+                {
+                    emoji: '✨',
+                    title: 'Wants & Desires (Bonus)',
+                    questions: [
+                        'What ideas or projects excite you?',
+                        'What skills or habits do you want to build?',
+                        'What would you enjoy working on today if you had time?'
+                    ]
+                },
+                {
+                    emoji: '📅',
+                    title: 'Deadlines & Time-Sensitive (Bonus)',
+                    questions: [
+                        'What specific dates do things need to be done by?',
+                        'When are your upcoming events and appointments?',
+                        'What hard cutoffs are there?'
+                    ]
+                }
+            ];
+
+            let html = '<h4 style="margin-bottom: 20px; color: #333;">🎯 Clarifying Questions from Each Section</h4>';
+            html += '<p style="margin-bottom: 20px; font-size: 0.9em; color: #666;">Answer the questions below to identify actionable tasks. If you find something you need to do, add it to the form on the right.</p>';
+            html += '<div style="display: grid; gap: 15px;">';
+
+            sections.forEach((section, idx) => {
+                const isOpen = idx < 3; // Open first 3 sections by default
+                html += `
+                    <div style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                        <div onclick="toggleSection('section-${idx}')" style="background: #f9fafb; padding: 15px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; user-select: none;">
+                            <h5 style="margin: 0; display: flex; align-items: center; gap: 10px; color: #333;">
+                                <span style="font-size: 1.2em;">${section.emoji}</span>
+                                <span>${section.title}</span>
+                            </h5>
+                            <span id="toggle-section-${idx}" style="font-size: 1.2em; color: #667eea; transition: transform 0.2s;">${isOpen ? '▼' : '▶'}</span>
+                        </div>
+                        <div id="section-${idx}" style="padding: 15px; background: white; display: ${isOpen ? 'block' : 'none'}; border-top: 1px solid #e5e7eb;">
+                            <div style="display: grid; gap: 10px;">
+                                ${section.questions.map(q => `
+                                    <div style="background: #f9fafb; padding: 12px; border-radius: 6px; border-left: 3px solid #667eea; display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
+                                        <span style="color: #333; flex: 1; font-size: 0.9em;">${q}</span>
+                                        <button onclick="addQuestionAsTask('${q.replace(/'/g, "\\'")}')" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; white-space: nowrap; font-size: 0.85em; transition: all 0.2s;" onmouseover="this.style.background='#059669'" onmouseout="this.style.background='#10b981'">Yes ✓</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const sectionIdx = sectionId.replace('section-', '');
+            const toggle = document.getElementById(`toggle-${sectionId}`);
+            
+            if (section.style.display === 'none') {
+                section.style.display = 'block';
+                toggle.style.transform = 'rotate(0deg)';
+            } else {
+                section.style.display = 'none';
+                toggle.style.transform = 'rotate(-90deg)';
+            }
+        }
+
+        function addQuestionAsTask(question) {
+            const taskInput = document.getElementById('newTask');
+            taskInput.value = question;
+            taskInput.focus();
+            taskInput.style.borderColor = '#10b981';
+            setTimeout(() => {
+                taskInput.style.borderColor = '#ea580c';
+            }, 1500);
         }
 
         function addTaskManually() {
