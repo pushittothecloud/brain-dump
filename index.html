@@ -1771,8 +1771,8 @@
                     
                     tasksInPriority.forEach((task, idx) => {
                         text += `${idx + 1}. ${task.text}\n`;
-                        if (task.estimate) {
-                            text += `   ⏱️  ${task.estimate.pomodoros} Pomodoro(s) | ${task.estimate.minutes} min\n`;
+                        if (task.nextStep) {
+                            text += `   → ${task.nextStep}\n`;
                         }
                     });
                     
