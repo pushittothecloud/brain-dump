@@ -491,7 +491,6 @@
                 <div class="progress-step" id="step3-progress"></div>
                 <div class="progress-step" id="step4-progress"></div>
                 <div class="progress-step" id="step5-progress"></div>
-                <div class="progress-step" id="step6-progress"></div>
             </div>
         </div>
 
@@ -780,27 +779,13 @@
 
                 <div class="btn-group">
                     <button class="btn-secondary" onclick="goToStep(3)">← Back</button>
-                    <button class="btn-primary" onclick="goToStep(5)">Next: Break Menu →</button>
+                    <button class="btn-primary" onclick="goToStep(5)">Next: Your Plan →</button>
                 </div>
             </div>
 
             <!-- STEP 5 -->
             <div class="step" id="step-5">
                 <div class="step-number">Step 5</div>
-                <h2>☕ Break Menu</h2>
-                <p class="step-description">Light refreshers and longer rewards based on your WANT list.</p>
-
-                <div id="breakMenu" class="break-menu"></div>
-
-                <div class="btn-group">
-                    <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
-                    <button class="btn-primary" onclick="goToStep(6)">Next: Your Plan →</button>
-                </div>
-            </div>
-
-            <!-- STEP 6 -->
-            <div class="step" id="step-6">
-                <div class="step-number">Step 6</div>
                 <h2>🎯 Your Complete Plan</h2>
                 <p class="step-description">Here's everything together. Print this, bookmark it, or modify as you go.</p>
 
@@ -812,7 +797,7 @@
                 <div id="finalOutput"></div>
 
                 <div class="btn-group">
-                    <button class="btn-secondary" onclick="goToStep(5)">← Back</button>
+                    <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
                     <button class="btn-secondary" onclick="downloadPlan()" style="flex: 1;">📥 Download as Text</button>
                     <button class="btn-secondary" onclick="goToStep(1)" style="flex: 1;">↻ Start Over</button>
                 </div>
@@ -855,7 +840,6 @@
             if (step === 3) activateStep3();
             if (step === 4) activateStep4();
             if (step === 5) activateStep5();
-            if (step === 6) activateStep6();
 
             window.scrollTo(0, 0);
         }
@@ -1646,7 +1630,7 @@
             }
         }
 
-        function activateStep6() {
+        function activateStep5_old() {
             const outputContainer = document.getElementById('finalOutput');
             outputContainer.innerHTML = '';
 
