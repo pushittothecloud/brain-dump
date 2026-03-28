@@ -666,13 +666,8 @@
                 <h2>🏷️ Classify & Specify</h2>
                 <p class="step-description">For each item, decide what type it is and what the next step would be. Not everything is a task.</p>
 
-                <div style="background: #ecfdf5; padding: 12px 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #10b981; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.2em;">💡</span>
-                    <span style="color: #047857; font-size: 0.9em;"><strong>Use the clarifying questions below to extract actionable tasks.</strong> Only add items that have a clear next step.</span>
-                </div>
-
-                <!-- CLARIFICATION QUESTIONS FROM ALL SECTIONS -->
-                <div id="clarifyingQuestionsContainer" style="margin-bottom: 30px;"></div>
+                <!-- CLARIFICATION QUESTIONS FROM ALL SECTIONS (HIDDEN) -->
+                <div id="clarifyingQuestionsContainer" style="margin-bottom: 30px; display: none;"></div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
                     <!-- LEFT: Brain Dump (read-only) -->
@@ -692,7 +687,7 @@
                             <input type="text" id="newTask" placeholder="What's the task?" style="width: 100%; padding: 10px; border: 2px solid #ea580c; border-radius: 6px; font-size: 0.95em;">
                         </div>
                         <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">Next Step</label>
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #333;">First Step</label>
                             <input type="text" id="newStep" placeholder="e.g., Call landlord, Apply online, Ask question" style="width: 100%; padding: 10px; border: 2px solid #ea580c; border-radius: 6px; font-size: 0.95em;">
                         </div>
                         <button onclick="addTaskManually()" style="width: 100%; background: #ea580c; color: white; padding: 10px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.95em; transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 16px rgba(234, 88, 12, 0.3)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
@@ -798,12 +793,18 @@
 
                 <div class="btn-group">
                     <button class="btn-secondary" onclick="goToStep(4)">← Back</button>
+                    <button class="btn-secondary" onclick="copyFinalTaskList()" style="flex: 1;">📋 Copy Tasks</button>
                     <button class="btn-secondary" onclick="downloadPlan()" style="flex: 1;">📥 Download as Text</button>
                     <button class="btn-secondary" onclick="goToStep(1)" style="flex: 1;">↻ Start Over</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Feedback Button (Bottom Left) -->
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLSeyUtDQBI66ikR1rg4eWKzB0K51DtpxcdLrln_0NM-Q6Xq1qA/viewform?usp=header" target="_blank" style="position: fixed; bottom: 20px; left: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 18px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.9em; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4); transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 20px rgba(102, 126, 234, 0.5)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';">
+        💬 Feedback
+    </a>
 
     <script>
         // Data storage
@@ -814,7 +815,8 @@
             tasks: [],
             categorized: {},
             classifiedItems: [],
-            expandedTasks: {} // Track which tasks are expanded for sub-tasks
+            expandedTasks: {}, // Track which tasks are expanded for sub-tasks
+            completedTasks: {} // Track which tasks are completed
         };
 
         // Navigation
@@ -1141,8 +1143,8 @@
                 state.tasks = [];
             }
             
-            // Render clarifying questions
-            renderClarifyingQuestions();
+            // Render clarifying questions (DISABLED)
+            // renderClarifyingQuestions();
             
             // Show task preview
             renderTasksPreview();
@@ -1349,7 +1351,7 @@
                             <strong style="color: #333;">${task.text}</strong>
                             <button onclick="deleteTask(${idx})" style="background: #dc2626; color: white; border: none; padding: 2px 8px; border-radius: 3px; font-size: 0.8em; cursor: pointer; float: right;">x</button>
                         </div>
-                        <div style="color: #666; font-size: 0.85em;">Next: ${task.nextStep}</div>
+                        <div style="color: #666; font-size: 0.85em;">First: ${task.nextStep}</div>
                     </div>
                 `;
             });
@@ -1502,20 +1504,29 @@
             }
 
             let totalPomodoros = 0;
-            allTasks.forEach(task => {
-                const minutes = task.estimate.minutes;
-                totalPomodoros += minutes === 15 ? 0.5 : minutes / 25;
+            let completedCount = 0;
+            allTasks.forEach((task, idx) => {
+                const taskId = `task-${idx}`;
+                const isCompleted = state.completedTasks[taskId];
+                if (isCompleted) {
+                    completedCount++;
+                } else {
+                    const minutes = task.estimate.minutes;
+                    totalPomodoros += minutes === 15 ? 0.5 : minutes / 25;
+                }
             });
 
             let html = `<h3 style="margin-bottom: 20px;">📊 Timeline Overview</h3>
                 <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-                    <p><strong>Total tasks:</strong> ${allTasks.length}</p>
-                    <p><strong>Estimated time:</strong> ${Math.round(totalPomodoros * 25)} minutes (${totalPomodoros.toFixed(1)} Pomodoros)</p>
+                    <p><strong>Total tasks:</strong> ${allTasks.length} ${completedCount > 0 ? `(<span style="color: #10b981; font-weight: 600;">${completedCount} completed</span>)` : ''}</p>
+                    <p><strong>Remaining time:</strong> ${Math.round(totalPomodoros * 25)} minutes (${totalPomodoros.toFixed(1)} Pomodoros)</p>
                     <p><strong>Conservative estimate (with breaks):</strong> ${Math.round(totalPomodoros * 30)} minutes</p>
                 </div>
                 <h3 style="margin-bottom: 20px;">Task Breakdown</h3>`;
 
-            allTasks.forEach(task => {
+            allTasks.forEach((task, idx) => {
+                const taskId = `task-${idx}`;
+                const isCompleted = state.completedTasks[taskId];
                 const categoryColors = {
                     'urgent-important': '#dc2626',
                     'important': '#fbbf24',
@@ -1532,15 +1543,18 @@
                 const googleCalendarUrl = createGoogleCalendarLink(task.text, task.estimate.minutes);
                 
                 html += `
-                    <div class="task-item ${task.category}" style="border-left: 4px solid ${categoryColors[task.category]};">
+                    <div class="task-item ${task.category}" style="border-left: 4px solid ${categoryColors[task.category]}; opacity: ${isCompleted ? '0.6' : '1'}; ${isCompleted ? 'background-color: #f0fdf4;' : ''}">
                         <div class="task-header" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;">
-                            <div style="flex: 1;">
-                                <div class="task-title" style="display: flex; align-items: center; gap: 8px;"><span>${priorityEmojis[task.category]}</span>${task.text}</div>
-                                <div class="task-description">${task.estimate.minutes} min (${task.estimate.pomodoros} Pomodoro${parseInt(task.estimate.pomodoros) !== 1 ? 's' : ''})</div>
+                            <div style="flex: 1; display: flex; align-items: flex-start; gap: 12px;">
+                                <input type="checkbox" id="check-${taskId}" ${isCompleted ? 'checked' : ''} onchange="toggleTaskComplete('${taskId}')" style="margin-top: 4px; cursor: pointer; width: 18px; height: 18px;">
+                                <div style="flex: 1;">
+                                    <div class="task-title" style="display: flex; align-items: center; gap: 8px; ${isCompleted ? 'text-decoration: line-through; color: #999;' : ''}"><span>${priorityEmojis[task.category]}</span>${task.text}</div>
+                                    <div class="task-description" style="${isCompleted ? 'color: #bbb;' : ''}">${task.estimate.minutes} min (${task.estimate.pomodoros} Pomodoro${parseInt(task.estimate.pomodoros) !== 1 ? 's' : ''})</div>
+                                </div>
                             </div>
                             <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
-                                <span class="pomodoro-badge" style="background: ${categoryColors[task.category]}; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600;">${task.estimate.pomodoros}</span>
-                                <a href="${googleCalendarUrl}" target="_blank" style="background: #4285f4; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.9em; font-weight: 600;">📅 Schedule</a>
+                                ${isCompleted ? `<span style="background: #10b981; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600; font-size: 0.9em;">✅ Done</span>` : `<span class="pomodoro-badge" style="background: ${categoryColors[task.category]}; color: white; padding: 6px 12px; border-radius: 4px; font-weight: 600;">${task.estimate.pomodoros}</span>`}
+                                ${!isCompleted ? `<a href="${googleCalendarUrl}" target="_blank" style="background: #4285f4; color: white; padding: 6px 12px; border-radius: 4px; text-decoration: none; font-size: 0.9em; font-weight: 600;">📅 Schedule</a>` : ''}
                             </div>
                         </div>
                     </div>
@@ -1555,6 +1569,11 @@
             const duration = minutes; // duration in minutes
             const url = `https://calendar.google.com/calendar/u/0/r/eventedit?text=${title}&details=Task%20Duration:%20${duration}%20minutes&duration=${duration}`;
             return url;
+        }
+
+        function toggleTaskComplete(taskId) {
+            state.completedTasks[taskId] = !state.completedTasks[taskId];
+            activateStep4(); // Re-render the list
         }
 
         function activateStep5() {
@@ -1802,6 +1821,73 @@
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
                 alert('✅ Ranked tasks copied to clipboard!');
+            });
+        }
+
+        function copyFinalTaskList() {
+            if (!state.tasks || state.tasks.length === 0) {
+                alert('No tasks to copy.');
+                return;
+            }
+
+            const priorityEmojis = {
+                'urgent-important': '🔴',
+                'important': '🟡',
+                'urgent': '🟠',
+                'normal': '⚪'
+            };
+
+            let text = '📋 YOUR TASK LIST\n';
+            text += '='.repeat(60) + '\n\n';
+
+            // Separate completed and remaining tasks
+            const completedTasks = [];
+            const remainingTasks = [];
+
+            state.tasks.forEach((task, idx) => {
+                const taskId = `task-${idx}`;
+                if (state.completedTasks[taskId]) {
+                    completedTasks.push(task);
+                } else {
+                    remainingTasks.push(task);
+                }
+            });
+
+            // Show remaining tasks
+            if (remainingTasks.length > 0) {
+                text += '⏳ REMAINING TASKS:\n';
+                text += '-'.repeat(60) + '\n';
+                
+                remainingTasks.forEach((task, idx) => {
+                    text += `${idx + 1}. ${priorityEmojis[task.category]} ${task.text}\n`;
+                    text += `   ⏱️  ${task.estimate.pomodoros} Pomodoro(s) | ${task.estimate.minutes} min\n`;
+                    if (task.nextStep) {
+                        text += `   → First: ${task.nextStep}\n`;
+                    }
+                    text += '\n';
+                });
+            }
+
+            // Show completed tasks
+            if (completedTasks.length > 0) {
+                text += '\n✅ COMPLETED TASKS:\n';
+                text += '-'.repeat(60) + '\n';
+                completedTasks.forEach((task, idx) => {
+                    text += `${idx + 1}. ✓ ${task.text}\n`;
+                });
+            }
+
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Task list copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Task list copied to clipboard!');
             });
         }
 
